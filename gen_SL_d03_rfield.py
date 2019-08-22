@@ -1,4 +1,4 @@
-#!/home/uwcc-admin/rfield_extractor/venv/bin/python3
+#!/home/uwcc-admin/curw_rfield_extractor/venv/bin/python3
 import traceback
 import pymysql
 import json
@@ -7,7 +7,6 @@ import getopt
 import os
 import multiprocessing as mp
 from datetime import datetime, timedelta
-
 
 # connection params
 HOST = ""
