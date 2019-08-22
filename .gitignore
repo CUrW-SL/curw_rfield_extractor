@@ -2,6 +2,7 @@ config.json
 nohup.out
 rfield.log
 venv/
+.idea/
 
 # setup.py installed.txt
 installed.txt
