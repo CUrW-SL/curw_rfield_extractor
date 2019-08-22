@@ -18,7 +18,7 @@ PORT = ""
 VALID_MODELS = ["WRF_A", "WRF_C", "WRF_E", "WRF_SE"]
 VALID_VERSIONS = ["v3", "v4", "4.0"]
 SIM_TAGS = ["evening_18hrs"]
-root_directory = '/mnt/disks/cms-data/temp'
+root_directory = '/var/www/html'
 
 
 def read_attribute_from_config_file(attribute, config):
@@ -129,9 +129,10 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag):
                               timestamp=timestamp, past_or_future="future")
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
-
+        return True
     except Exception as ex:
         traceback.print_exc()
+        return False
     finally:
         connection.close()
         print("Process finished")
@@ -179,7 +180,7 @@ if __name__=="__main__":
         print(VALID_MODELS, VALID_VERSIONS, SIM_TAGS)
 
         # load connection parameters
-        config = json.loads(open('/home/uwcc-admin/rfield_extractor/config.json').read())
+        config = json.loads(open('/home/uwcc-admin/curw_rfield_extractor/config.json').read())
 
         # connection params
         HOST = read_attribute_from_config_file('host', config)
