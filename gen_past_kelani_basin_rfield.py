@@ -19,7 +19,7 @@ PORT = ""
 VALID_MODELS = ["WRF_A", "WRF_C", "WRF_E", "WRF_SE"]
 VALID_VERSIONS = ["v3", "v4", "4.0"]
 SIM_TAGS = ["evening_18hrs"]
-root_directory = '~/curw_rfield_extractor/temp'
+root_directory = '/home/uwcc-admin/curw_rfield_extractor/temp'
 bucket_root = '/mnt/disks/wrf_nfs'
 
 
@@ -103,7 +103,7 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag, fgt):
 
 def usage():
     usageText = """
-    Usage: python gen_rfield_kelani_basin_parallelized_optimized_with_past_future.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs"
+    Usage: ./gen_past_kelani_basin_rfield.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs" -f "2019-09-12%"
 
     -h  --help          Show usage
     -m  --wrf_model     List of WRF models (e.g. WRF_A, WRF_E). Compulsory arg
@@ -192,7 +192,7 @@ if __name__=="__main__":
         mp_pool = mp.Pool(mp.cpu_count())
 
         results = mp_pool.starmap(gen_rfield_d03_kelani_basin,
-                                        [(wrf_model, version, sim_tag) for wrf_model in wrf_model_list])
+                                        [(wrf_model, version, sim_tag, fgt) for wrf_model in wrf_model_list])
         # results = mp_pool.starmap_async(gen_rfield_d03_kelani_basin,
         #                           [(wrf_model, version, sim_tag) for wrf_model in wrf_model_list]).get()
 
