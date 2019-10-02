@@ -205,5 +205,7 @@ if __name__=="__main__":
     finally:
         if my_pool is not None:
             mp_pool.close()
-        os.system("tar -czvf {}/rfield_{}.tar.gz {}/*".format(bucket_rfield_home,
-                                                              fgt.split('%')[0].replace('-',''), rfield_home))
+        # os.system("tar -czvf {}/rfield_{}.tar.gz {}/*".format(bucket_rfield_home,
+        #                                                       fgt.split('%')[0].replace('-',''), rfield_home))
+        os.system("tar -czf {}/rfield_{}.tar.gz {}/*".format(bucket_rfield_home,
+                                                              fgt.split('%')[0].replace('-', ''), rfield_home))
