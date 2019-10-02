@@ -42,7 +42,7 @@ def write_to_file(file_name, data):
         f.write('\n'.join(data))
 
 
-def create_rfield(connection, wrf_model, version, sim_tag, timestamp):
+def create_rfield(connection, wrf_model, version, sim_tag, timestamp, rfield_home):
     # rfield = [['latitude', 'longitude', 'rainfall']]
     rfield = []
     with connection.cursor() as cursor0:
@@ -51,15 +51,15 @@ def create_rfield(connection, wrf_model, version, sim_tag, timestamp):
         for result in results:
             rfield.append('{}'.format(result.get('value')))
 
-    write_to_file('{}/wrf/{}/{}/rfield/d03/{}_{}_{}_rfield.txt'
-                  .format(root_directory, version, sim_tag, wrf_model, version, timestamp.strftime('%Y-%m-%d_%H-%M')), rfield)
+    write_to_file('{}/{}_{}_{}_rfield.txt'
+                  .format(rfield_home, wrf_model, version, timestamp.strftime('%Y-%m-%d_%H-%M')), rfield)
 
 
-def gen_rfield_d03(wrf_model, version, sim_tag):
+def gen_rfield_d03(wrf_model, version, sim_tag, rfield_home):
 
     # remove outdated rfield files
     try:
-        os.system("sudo rm {}/wrf/{}/{}/rfield/d03/{}_{}_*".format(root_directory, version, sim_tag, wrf_model, version))
+        os.system("sudo rm -f {}/{}_{}_*".format(rfield_home, wrf_model, version))
     except Exception as e:
         traceback.print_exc()
 
@@ -86,7 +86,7 @@ def gen_rfield_d03(wrf_model, version, sim_tag):
 
             while timestamp <= end_time:
                 create_rfield(connection=connection, wrf_model=wrf_model, version=version, sim_tag=sim_tag,
-                              timestamp=timestamp)
+                              timestamp=timestamp, rfield_home=rfield_home)
 
                 timestamp = datetime.strptime(str(timestamp), '%Y-%m-%d %H:%M:%S') + timedelta(minutes=15)
 
@@ -160,15 +160,21 @@ if __name__=="__main__":
             usage()
             exit(1)
 
-        rfield_home = "{}/wrf/{}/{}/rfield/d03".format(root_directory, version, sim_tag)
+        sim_tag_parts = re.findall(r'\d+', sim_tag)
+        gfs_run = "d{}".format(sim_tag_parts[0])
+        gfs_data_hour = sim_tag_parts[1]
+        today = (datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d')
+
+        rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/d03".format(root_directory, version, gfs_run, gfs_data_hour,
+                                                             today)
         try:
             os.makedirs(rfield_home)
         except FileExistsError:
             # directory already exists
             pass
 
-        gfs_data_hour = re.findall(r'\d+', sim_tag)[0]
-        bucket_rfield_home = "{}/wrf/{}/{}/rfield/d03".format(bucket_root, version, gfs_data_hour)
+        bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/d03".format(bucket_root, version, gfs_run, gfs_data_hour,
+                                                             today)
         try:
             os.makedirs(bucket_rfield_home)
         except FileExistsError:
@@ -184,7 +190,7 @@ if __name__=="__main__":
         mp_pool = mp.Pool(mp.cpu_count())
 
         results = mp_pool.starmap(gen_rfield_d03,
-                                        [(wrf_model, version, sim_tag) for wrf_model in wrf_model_list])
+                                        [(wrf_model, version, sim_tag, rfield_home) for wrf_model in wrf_model_list])
 
         print("results: ", results)
 
