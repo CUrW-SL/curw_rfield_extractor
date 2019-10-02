@@ -18,7 +18,7 @@ PORT = ""
 
 VALID_MODELS = ["WRF_A", "WRF_C", "WRF_E", "WRF_SE"]
 VALID_VERSIONS = ["v3", "v4", "4.0"]
-SIM_TAGS = ["evening_18hrs"]
+SIM_TAGS = ["evening_18hrs", "gfs_d1_18"]
 root_directory = '/home/uwcc-admin/curw_rfield_extractor/temp'
 bucket_root = '/mnt/disks/wrf_nfs'
 
