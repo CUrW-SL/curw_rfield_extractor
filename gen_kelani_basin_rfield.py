@@ -18,7 +18,7 @@ PORT = ""
 
 VALID_MODELS = ["WRF_A", "WRF_C", "WRF_E", "WRF_SE"]
 VALID_VERSIONS = ["v3", "v4", "4.0"]
-SIM_TAGS = ["evening_18hrs", "gfs_d1_18", , "gfs_d1_00"]
+SIM_TAGS = ["evening_18hrs", "gfs_d1_18", "gfs_d1_00"]
 root_directory = '/var/www/html'
 bucket_root = '/mnt/disks/wrf_nfs'
 
