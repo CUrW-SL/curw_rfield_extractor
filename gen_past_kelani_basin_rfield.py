@@ -179,7 +179,7 @@ if __name__=="__main__":
         sim_tag_parts = re.findall(r'\d+', sim_tag)
         gfs_run = "d{}".format(sim_tag_parts[0])
         gfs_data_hour = sim_tag_parts[1]
-        today = (datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d')
+        today = fgt.split("%")[0]
 
         bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                              gfs_data_hour,
