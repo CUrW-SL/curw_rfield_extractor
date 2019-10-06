@@ -21,6 +21,9 @@ VALID_VERSIONS = ["v3", "v4", "4.0"]
 SIM_TAGS = ["evening_18hrs"]
 root_directory = '/home/uwcc-admin/curw_rfield_extractor/temp'
 bucket_root = '/mnt/disks/wrf_nfs'
+version = '4.0'
+gfs_run = 'd0'
+gfs_data_hour = '18'
 
 
 def read_attribute_from_config_file(attribute, config):
@@ -175,8 +178,9 @@ if __name__=="__main__":
             # directory already exists
             pass
 
-        gfs_data_hour =re.findall(r'\d+', sim_tag)[0]
-        bucket_rfield_home = "{}/wrf/{}/{}/past_rfields/kelani_basin".format(bucket_root, version, gfs_data_hour)
+        bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
+                                                                             gfs_data_hour,
+                                                                             fgt.split('%')[0])
         try:
             os.makedirs(bucket_rfield_home)
         except FileExistsError:
@@ -198,11 +202,12 @@ if __name__=="__main__":
 
         print("results: ", results)
 
+        os.system("tar -czf {}/rfield.tar.gz {}/*".format(bucket_rfield_home, rfield_home))
+
     except Exception as e:
         print('JSON config data loading error.')
         traceback.print_exc()
     finally:
         if my_pool is not None:
             mp_pool.close()
-        os.system("tar -czvf {}/rfield_{}.tar.gz {}/*".format(bucket_rfield_home,
-                                                              fgt.split('%')[0].replace('-',''), rfield_home))
+
