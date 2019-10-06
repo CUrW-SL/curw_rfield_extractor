@@ -205,6 +205,8 @@ if __name__=="__main__":
 
         print("results: ", results)
 
+        os.system("tar -czf {}/rfield.tar.gz {}/*".format(bucket_rfield_home, rfield_home))
+
     except Exception as e:
         print('JSON config data loading error.')
         traceback.print_exc()
@@ -213,5 +215,4 @@ if __name__=="__main__":
             mp_pool.close()
         # os.system("tar -czvf {}/rfield_{}.tar.gz {}/*".format(bucket_rfield_home,
         #                                                       fgt.split('%')[0].replace('-',''), rfield_home))
-        os.system("tar -czf {}/rfield.tar.gz {}/*".format(bucket_rfield_home, rfield_home))
 
