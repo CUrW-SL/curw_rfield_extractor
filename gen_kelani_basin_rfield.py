@@ -104,7 +104,7 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag, rfield_home):
 
 def usage():
     usageText = """
-    Usage: python gen_rfield_kelani_basin_parallelized_optimized_with_past_future.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs"
+    Usage: ./gen_kelani_basin_rfield.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs"
 
     -h  --help          Show usage
     -m  --wrf_model     List of WRF models (e.g. WRF_A, WRF_E). Compulsory arg

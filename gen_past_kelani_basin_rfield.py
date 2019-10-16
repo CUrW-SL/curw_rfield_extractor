@@ -104,7 +104,7 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag, fgt):
 
 def usage():
     usageText = """
-    Usage: ./gen_past_kelani_basin_rfield_v1.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs" -f "2019-09-12%"
+    Usage: ./gen_past_kelani_basin_rfield.py -m WRF_X1,WRF_X2,WRF_X3 -v vX -s "evening_18hrs" -f "2019-09-12%"
 
     -h  --help          Show usage
     -m  --wrf_model     List of WRF models (e.g. WRF_A, WRF_E). Compulsory arg
