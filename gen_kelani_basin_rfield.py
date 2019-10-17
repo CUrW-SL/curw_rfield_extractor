@@ -84,7 +84,7 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag, rfield_home):
             start_time = result.get('start')
             end_time = result.get('end')
 
-        if end_time > (now + timedelta(days=1)):
+        if end_time > now:
             # Extract rfields
             timestamp = start_time
 
