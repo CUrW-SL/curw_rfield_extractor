@@ -183,7 +183,7 @@ if __name__=="__main__":
 
         # copy file containing xy coordinates to the rfield home
         try:
-            os.system("cp d03_xy.csv {}/xy.csv".format(rfield_home))
+            os.system("cp /home/uwcc-admin/curw_rfield_extractor/d03_xy.csv {}/xy.csv".format(rfield_home))
         except Exception:
             pass
 
