@@ -181,9 +181,15 @@ if __name__=="__main__":
         gfs_data_hour = sim_tag_parts[1]
         today = fgt.split("%")[0]
 
-        bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
-                                                                             gfs_data_hour,
-                                                                             today)
+        if sim_tag.split("_")[0] == 'dwrf':
+            bucket_rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
+                                                                                 gfs_data_hour,
+                                                                                 today)
+        else:
+            bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
+                                                                                 gfs_data_hour,
+                                                                                 today)
+
         try:
             os.makedirs(bucket_rfield_home)
         except FileExistsError:

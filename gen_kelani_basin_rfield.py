@@ -174,16 +174,27 @@ if __name__=="__main__":
         gfs_data_hour = sim_tag_parts[1]
         today = (datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d')
 
-        rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run, gfs_data_hour,
-                                                                      today)
+        if sim_tag.split("_")[0] == 'dwrf':
+            rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
+                                                                          gfs_data_hour,
+                                                                          today)
+            bucket_rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
+                                                                                 gfs_data_hour,
+                                                                                 today)
+        else:
+            rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
+                                                                          gfs_data_hour,
+                                                                          today)
+            bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
+                                                                                 gfs_data_hour,
+                                                                                 today)
+
         try:
             os.makedirs(rfield_home)
         except FileExistsError:
             # directory already exists
             pass
 
-        bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run, gfs_data_hour,
-                                                                             today)
         try:
             os.makedirs(bucket_rfield_home)
         except FileExistsError:
