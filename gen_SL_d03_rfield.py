@@ -60,7 +60,7 @@ def gen_rfield_d03(wrf_model, version, sim_tag, rfield_home):
 
     # remove outdated rfield files
     try:
-        os.system("sudo rm -f {}/{}_{}_*".format(rfield_home, wrf_model, version))
+        os.system("rm -f {}/{}_{}_*".format(rfield_home, wrf_model, version))
     except Exception as e:
         traceback.print_exc()
 
