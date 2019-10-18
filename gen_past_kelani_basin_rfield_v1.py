@@ -63,12 +63,6 @@ def create_rfield(connection, wrf_model, version, sim_tag, fgt, timestamp):
 
 def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag, fgt):
 
-    # remove outdated rfields
-    try:
-        os.system("sudo rm {}/{}_{}_*".format(root_directory, wrf_model, version))
-    except Exception as e:
-        traceback.print_exc()
-
     start_time = ''
     end_time = ''
 
@@ -177,6 +171,12 @@ if __name__=="__main__":
         except FileExistsError:
             # directory already exists
             pass
+
+        # clean whole local rfield directory before rfield creation
+        try:
+            os.system("rm {}/*".format(rfield_home))
+        except Exception as e:
+            traceback.print_exc()
 
         bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                              gfs_data_hour,
