@@ -19,7 +19,7 @@ PORT = ""
 
 VALID_MODELS = ["WRF_A", "WRF_C", "WRF_E", "WRF_SE"]
 VALID_VERSIONS = ["v3", "v4", "4.0"]
-SIM_TAGS = ["gfs_d0_18", "gfs_d1_00", "gfs_d0_00"]
+SIM_TAGS = ["gfs_d0_18", "gfs_d1_00", "gfs_d0_00", "dwrf_gfs_d0_18"]
 root_directory = '/var/www/html'
 bucket_root = '/mnt/disks/wrf_nfs'
 
@@ -166,16 +166,23 @@ if __name__=="__main__":
         gfs_data_hour = sim_tag_parts[1]
         today = (datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d')
 
-        rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/d03".format(root_directory, version, gfs_run, gfs_data_hour,
+        if sim_tag.split("_")[0] == 'dwrf':
+            rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/d03".format(root_directory, version, gfs_run, gfs_data_hour,
+                                                                 today)
+            bucket_rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/d03".format(bucket_root, version, gfs_run, gfs_data_hour,
+                                                                        today)
+        else:
+            rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/d03".format(root_directory, version, gfs_run, gfs_data_hour,
                                                              today)
+            bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/d03".format(bucket_root, version, gfs_run, gfs_data_hour,
+                                                                        today)
+
         try:
             os.makedirs(rfield_home)
         except FileExistsError:
             # directory already exists
             pass
 
-        bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/d03".format(bucket_root, version, gfs_run, gfs_data_hour,
-                                                             today)
         try:
             os.makedirs(bucket_rfield_home)
         except FileExistsError:
