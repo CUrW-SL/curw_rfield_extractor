@@ -212,8 +212,6 @@ if __name__=="__main__":
         # results = mp_pool.starmap_async(gen_rfield_d03_kelani_basin,
         #                           [(wrf_model, version, sim_tag) for wrf_model in wrf_model_list]).get()
 
-        print("tar command: ", "tar -C {} -czf {}/rfield.tar.gz rfield".format(rfield_home.split('/rfield')[0], bucket_rfield_home))
-
         os.system("tar -C {} -czf {}/rfield.tar.gz rfield".format(''.join(rfield_home.split('/rfield')[:-1]), bucket_rfield_home))
 
     except Exception as e:
