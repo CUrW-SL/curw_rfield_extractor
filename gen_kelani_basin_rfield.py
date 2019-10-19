@@ -175,16 +175,14 @@ if __name__=="__main__":
         today = (datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d')
 
         if sim_tag.split("_")[0] == 'dwrf':
-            rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
-                                                                          gfs_data_hour,
-                                                                          today)
+            rfield_home = "{}/dwrf/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
+                                                                          gfs_data_hour)
             bucket_rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                                  gfs_data_hour,
                                                                                  today)
         else:
-            rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
-                                                                          gfs_data_hour,
-                                                                          today)
+            rfield_home = "{}/wrf/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
+                                                                          gfs_data_hour)
             bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                                  gfs_data_hour,
                                                                                  today)
