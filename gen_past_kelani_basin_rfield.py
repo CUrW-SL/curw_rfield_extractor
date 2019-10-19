@@ -211,7 +211,7 @@ if __name__=="__main__":
 
         print("results: ", results)
 
-        os.system("tar -czf {}/rfield.tar.gz {}/*".format(bucket_rfield_home, rfield_home))
+        os.system("tar -czfC {}/rfield.tar.gz {}/*".format(bucket_rfield_home, rfield_home))
 
     except Exception as e:
         print('JSON config data loading error.')
