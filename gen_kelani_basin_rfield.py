@@ -214,7 +214,7 @@ if __name__=="__main__":
 
         print("tar command:::", ''.join(rfield_home.split('/rfield')[:-1]))
 
-        os.system("tar -C {} -czf {}/rfield.tar.gz rfield".format(''.join(rfield_home.split('/rfield')[:-1]), bucket_rfield_home))
+        os.system("tar -C {} -czf {}/rfield.tar.gz rfield".format('/rfield'.join(rfield_home.split('/rfield')[:-1]), bucket_rfield_home))
 
     except Exception as e:
         print('JSON config data loading error.')
