@@ -175,13 +175,13 @@ if __name__=="__main__":
         today = (datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d')
 
         if sim_tag.split("_")[0] == 'dwrf':
-            rfield_home = "{}/dwrf/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
+            rfield_home = "{}/dwrf/{}/{}/{}/kelani_basin/rfield".format(root_directory, version, gfs_run,
                                                                           gfs_data_hour)
             bucket_rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                                  gfs_data_hour,
                                                                                  today)
         else:
-            rfield_home = "{}/wrf/{}/{}/{}/rfield/kelani_basin".format(root_directory, version, gfs_run,
+            rfield_home = "{}/wrf/{}/{}/{}/kelani_basin/rfield".format(root_directory, version, gfs_run,
                                                                           gfs_data_hour)
             bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                                  gfs_data_hour,
@@ -214,7 +214,7 @@ if __name__=="__main__":
 
         print("results: ", results)
 
-        os.system("tar -czfC {}/rfield.tar.gz {}/*".format(bucket_rfield_home, rfield_home))
+        os.system("tar -C {} -czf {}/rfield.tar.gz rfield".format(rfield_home.split('/rfield')[0], bucket_rfield_home))
 
     except Exception as e:
         print('JSON config data loading error.')
