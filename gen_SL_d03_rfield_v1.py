@@ -1,4 +1,5 @@
 #!/home/uwcc-admin/curw_rfield_extractor/venv/bin/python3
+# rfields goes to todays folder
 import traceback
 import pymysql
 import json

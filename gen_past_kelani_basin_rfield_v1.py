@@ -1,4 +1,6 @@
 #!/home/uwcc-admin/curw_rfield_extractor/venv/bin/python3
+# dedicated for old sim tag "evening_18hrs"
+# rfields goes to directory according to fgt
 import traceback
 import pymysql
 import json

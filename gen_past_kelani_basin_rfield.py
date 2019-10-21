@@ -1,4 +1,5 @@
 #!/home/uwcc-admin/curw_rfield_extractor/venv/bin/python3
+# rfields goes to directory according to fgt
 import traceback
 import pymysql
 import json
@@ -179,16 +180,16 @@ if __name__=="__main__":
         sim_tag_parts = re.findall(r'\d+', sim_tag)
         gfs_run = "d{}".format(sim_tag_parts[0])
         gfs_data_hour = sim_tag_parts[1]
-        today = fgt.split("%")[0]
+        day = fgt.split("%")[0]
 
         if sim_tag.split("_")[0] == 'dwrf':
             bucket_rfield_home = "{}/dwrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                                  gfs_data_hour,
-                                                                                 today)
+                                                                                 day)
         else:
             bucket_rfield_home = "{}/wrf/{}/{}/{}/{}/rfield/kelani_basin".format(bucket_root, version, gfs_run,
                                                                                  gfs_data_hour,
-                                                                                 today)
+                                                                                 day)
 
         try:
             os.makedirs(bucket_rfield_home)
