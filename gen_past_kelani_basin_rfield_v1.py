@@ -55,7 +55,8 @@ def create_rfield(connection, wrf_model, version, sim_tag, fgt, timestamp):
         for result in results:
             rfield.append('{}'.format(result.get('value')))
 
-    write_to_file('{}/{}_{}_{}_rfield.txt'
+    if rfield[0] != "None":
+        write_to_file('{}/{}_{}_{}_rfield.txt'
                   .format(root_directory, wrf_model, version, timestamp.strftime('%Y-%m-%d_%H-%M')), rfield)
 
 
