@@ -128,8 +128,8 @@ if __name__=="__main__":
         fgt = '{}%'.format((datetime.now() + timedelta(hours=5, minutes=30)).strftime('%Y-%m-%d'))
 
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h:m:v:s:",
-                    ["help", "wrf_model=", "version=", "sim_tag="])
+            opts, args = getopt.getopt(sys.argv[1:], "h:m:v:s:f:",
+                    ["help", "wrf_model=", "version=", "sim_tag=", "fgt="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -143,9 +143,10 @@ if __name__=="__main__":
                 version = arg.strip()
             elif opt in ("-s", "--sim_tag"):
                 sim_tag = arg.strip()
+            elif opt in ("-f", "--fgt"):
+                fgt = arg.strip()
 
-        print(wrf_models, version, sim_tag)
-        print(VALID_MODELS, VALID_VERSIONS, SIM_TAGS)
+        print(wrf_models, version, sim_tag, fgt)
 
         # load connection parameters
         config = json.loads(open('/home/uwcc-admin/curw_rfield_extractor/config.json').read())
