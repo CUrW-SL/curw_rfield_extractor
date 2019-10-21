@@ -73,7 +73,7 @@ def gen_rfield_d03_kelani_basin(wrf_model, version, sim_tag, fgt):
 
         # Extract timeseries start time and end time
         with connection.cursor() as cursor1:
-            cursor1.callproc('get_wrf_TS_start_end_fgt', (wrf_model, version, sim_tag, fgt))
+            cursor1.callproc('get_TS_start_end_fgt', (wrf_model, version, sim_tag, fgt))
             result = cursor1.fetchone()
             start_time = result.get('start')
             end_time = result.get('end')
