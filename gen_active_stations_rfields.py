@@ -22,6 +22,7 @@ from db_adapter.constants import (
     CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT,
     CURW_FCST_HOST,
 )
+from db_adapter.constants import CURW_OBS_USERNAME, CURW_OBS_DATABASE, CURW_OBS_HOST, CURW_OBS_PASSWORD, CURW_OBS_PORT
 
 from db_adapter.logger import logger
 
@@ -95,13 +96,44 @@ def makedir_if_not_exist(dir_path):
         # directory already exists
         pass
 
-
 # def remove_all_files(dir):
 #     os.system("rm -f {}/*".format(dir))
 #
 #
 # def zip_folder(source, destination):
 #     os.system("tar -C {} -czf {}.tar.gz {}".format('/'.join(source.split('/')[:-1]), destination, source.split('/')[-1]))
+
+
+def extract_active_curw_obs_rainfall_stations():
+    """
+        Extract currently active (active within last week) rainfall obs stations
+        :return:
+        """
+    # Connect to the database
+    pool = get_Pool(host=CURW_OBS_HOST, port=CURW_OBS_PORT, user=CURW_OBS_USERNAME, password=CURW_OBS_PASSWORD,
+                    db=CURW_OBS_DATABASE)
+
+    obs_stations = [['hash_id', 'station_id', 'station_name', 'latitude', 'longitude']]
+
+    connection = pool.connection()
+
+    try:
+
+        with connection.cursor() as cursor1:
+            cursor1.callproc(procname='getActiveRainfallObsStations')
+            results = cursor1.fetchall()
+
+            for result in results:
+                obs_stations.append([result.get('hash_id'), result.get('station_id'), result.get('station_name'),
+                                     result.get('latitude'), result.get('longitude')])
+
+        return obs_stations
+
+    except Exception as ex:
+        traceback.print_exc()
+    finally:
+        connection.close()
+        destroy_Pool(pool)
 
 
 def prepare_active_obs_stations_based_rfield(pool, tms_meta, config_data):
@@ -127,8 +159,6 @@ def prepare_active_obs_stations_based_rfield(pool, tms_meta, config_data):
             fcst_ts = TS.get_latest_timeseries(sim_tag=config_data['sim_tag'], station_id=config_data['sim_tag'],
                                                source_id=source_id, variable_id=config_data['variable_id'],
                                                unit_id=config_data['sim_tag'])
-
-
 
 
 if __name__ == "__main__":
