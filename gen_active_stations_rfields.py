@@ -156,6 +156,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
         longitude = active_obs_stations.get(obs_id)[3]
 
         df = pd.DataFrame()
+        df_initialized = False
 
         for wrf_system in config_data['wrf_system_list']:
             source_name = "{}_{}".format(config_data['model'], wrf_system)
@@ -184,7 +185,12 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                 fcst_ts_df['longitude'] = longitude
                 fcst_ts_df['latitude'] = latitude
                 fcst_ts_df.set_index(['time', 'longitude', 'latitude'], inplace=True)
-                df.merge(fcst_ts_df, how="outer")
+
+                if not df_initialized:
+                    df = fcst_ts_df
+                    df_initialized = True
+                else:
+                    df.merge(fcst_ts_df, how="outer")
                 print(df)
 
         break
