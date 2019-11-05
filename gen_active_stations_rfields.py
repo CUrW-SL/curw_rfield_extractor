@@ -92,13 +92,6 @@ def makedir_if_not_exist(dir_path):
         # directory already exists
         pass
 
-# def remove_all_files(dir):
-#     os.system("rm -f {}/*".format(dir))
-#
-#
-# def zip_folder(source, destination):
-#     os.system("tar -C {} -czf {}.tar.gz {}".format('/'.join(source.split('/')[:-1]), destination, source.split('/')[-1]))
-
 
 def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
     """
@@ -123,16 +116,24 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
         return obs_stations
 
     except Exception as ex:
-        traceback.print_exc()
+        msg = "Exception occurred while retrieving active observational stations."
+        logger.error(msg)
+        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
     finally:
         connection.close()
 
 
 def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data, active_obs_stations):
-    grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
-    obs_to_d03_grid_mapping = get_obs_to_d03_grid_mappings_for_rainfall(pool=curw_sim_pool,
+    try:
+        grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
+
+        obs_to_d03_grid_mapping = get_obs_to_d03_grid_mappings_for_rainfall(pool=curw_sim_pool,
                                                                         grid_interpolation=grid_interpolation)
+    except Exception:
+        msg = "Exception occurred while loading rainfall obs station to d03 station grid maps."
+        logger.error(msg)
+        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
     obs_to_d03_dict = {}
 
@@ -207,25 +208,24 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
 
     dataframe.sort_index(inplace=True)
 
-    dataframe.to_csv(os.path.join(local_rfield_home,
-                                  '{}_{}_{}_hybrid_rfield.csv'.
-                                  format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'])),
-                     header=False, index=True)
+    try:
+        dataframe.to_csv(os.path.join(local_rfield_home,
+                                      '{}_{}_{}_hybrid_rfield.csv'.
+                                      format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'])),
+                         header=False, index=True)
 
-    dataframe.to_csv(os.path.join(bucket_rfield_home,
-                                  '{}_{}_{}_hybrid_rfield.csv'.
-                                  format(config_data['wrf_type'], config_data['gfs_run'],
-                                         config_data['gfs_data_hour'])),
-                     header=False, index=True)
+        dataframe.to_csv(os.path.join(bucket_rfield_home,
+                                      '{}_{}_{}_hybrid_rfield.csv'.
+                                      format(config_data['wrf_type'], config_data['gfs_run'],
+                                             config_data['gfs_data_hour'])),
+                         header=False, index=True)
+    except Exception:
+        msg = "Exception occurred while saving rfields to file."
+        logger.error(msg)
+        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
 
 if __name__ == "__main__":
-    # config_data = {
-    #             'model': "WRF",
-    #             'version': "4.0",
-    #             'wrf_system': "A"
-    #         }
-    # create_d01_rfields("/home/shadhini/dev/repos/curw-sl/curw_wrf_data_pusher/to_be_deprecated/wrf_4.0_18_A_2019-10-15_d01_RAINNC.nc", config_data)
 
     """
     Config.json
