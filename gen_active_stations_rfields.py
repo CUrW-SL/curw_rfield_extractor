@@ -204,13 +204,18 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         else:
             dataframe = dataframe.append(df)
             print(dataframe)
-            break
 
     dataframe.sort_index(inplace=True)
 
     dataframe.to_csv(os.path.join(local_rfield_home,
                                   '{}_{}_{}_hybrid_rfield.csv'.
                                   format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'])),
+                     header=False, index=True)
+
+    dataframe.to_csv(os.path.join(bucket_rfield_home,
+                                  '{}_{}_{}_hybrid_rfield.csv'.
+                                  format(config_data['wrf_type'], config_data['gfs_run'],
+                                         config_data['gfs_data_hour'])),
                      header=False, index=True)
 
 
