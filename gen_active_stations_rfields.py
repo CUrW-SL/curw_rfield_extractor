@@ -184,11 +184,12 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                 fcst_ts_df['longitude'] = longitude
                 fcst_ts_df['latitude'] = latitude
                 fcst_ts_df.set_index(['time', 'longitude', 'latitude'], inplace=True)
-                print(fcst_ts_df)
+                df.merge(fcst_ts_df, how="outer")
+                print(df)
 
         break
 
-            # df.merge(fcst_ts, how="outer")
+
 
 
 if __name__ == "__main__":
