@@ -3,6 +3,8 @@ nohup.out
 rfield.log
 venv/
 .idea/
+db_adapter_config.json
+
 
 # setup.py installed.txt
 installed.txt
