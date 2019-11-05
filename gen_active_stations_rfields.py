@@ -159,8 +159,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         df = pd.DataFrame()
         df_initialized = False
 
-        fcst_starts = []
-
         for wrf_system in config_data['wrf_system_list']:
             source_name = "{}_{}".format(config_data['model'], wrf_system)
 
@@ -182,7 +180,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                 fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
                                                    source_id=source_id, variable_id=tms_meta['variable_id'],
                                                    unit_id=tms_meta['unit_id'])
-                fcst_starts.append(fcst_ts[0][0])
                 fcst_ts.insert(0, ['time', source_name])
                 fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
 
@@ -199,7 +196,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         obs_ts.insert(0, ['time', 'obs'])
 
         obs_ts_df = list_of_lists_to_df_first_row_as_columns(obs_ts)
-
 
         df = pd.merge(df, obs_ts_df, how="outer", on='time')
 
