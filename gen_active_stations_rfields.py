@@ -202,13 +202,11 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         df['latitude'] = latitude
         df.set_index(['time', 'longitude', 'latitude'], inplace=True)
 
-        print(df)
-
         if not outer_df_initialized:
             dataframe = df
             outer_df_initialized = True
         else:
-            dataframe.append(df)
+            dataframe = dataframe.append(df)
             print(dataframe)
             break
 
