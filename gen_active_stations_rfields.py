@@ -372,6 +372,9 @@ if __name__ == "__main__":
         makedir_if_not_exist(local_rfield_home)
         makedir_if_not_exist(bucket_rfield_home)
 
+        prepare_active_obs_stations_based_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
+                                                 tms_meta=tms_meta, config_data=config_data,
+                                                 active_obs_stations=active_obs_stations)
 
     except Exception as e:
         msg = 'Config data loading error.'
