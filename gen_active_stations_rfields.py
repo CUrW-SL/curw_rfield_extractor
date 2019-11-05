@@ -182,7 +182,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                                                    unit_id=tms_meta['unit_id'])
                 fcst_ts.insert(0, ['time', source_name])
 
-                fcst_ts_df = list_of_lists_to_df_first_row_as_columsource_namens(fcst_ts)
+                fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
                 fcst_ts_df['longitude'] = longitude
                 fcst_ts_df['latitude'] = latitude
                 fcst_ts_df.set_index(['time', 'longitude', 'latitude'], inplace=True)
@@ -209,8 +209,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         print(df)
 
         break
-
-
 
 
 if __name__ == "__main__":
