@@ -125,6 +125,7 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
                 obs_stations[result.get('station_id')] = [result.get('hash_id'), result.get('station_name'),
                                      result.get('latitude'), result.get('longitude')]
 
+        print("inside obs station extraion func", obs_stations)
         return obs_stations
 
     except Exception as ex:
@@ -361,6 +362,7 @@ if __name__ == "__main__":
         }
 
         active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool)
+        print('active obs stations:', active_obs_stations)
 
         local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
                                          config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
