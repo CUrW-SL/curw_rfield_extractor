@@ -133,7 +133,7 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
         connection.close()
 
 
-def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_meta, config_data, active_obs_stations):
+def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data, active_obs_stations):
     grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
     obs_to_d03_grid_mapping = get_obs_to_d03_grid_mappings_for_rainfall(pool=curw_sim_pool,
@@ -154,6 +154,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
         d03_station_id = obs_to_d03_dict.get(obs_id)
         latitude = active_obs_stations.get(obs_id)[2]
         longitude = active_obs_stations.get(obs_id)[3]
+        hash_id = active_obs_stations.get(obs_id)[0]
 
         df = pd.DataFrame()
         df_initialized = False
@@ -181,7 +182,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                                                    unit_id=tms_meta['unit_id'])
                 fcst_ts.insert(0, ['time', source_name])
 
-                fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
+                fcst_ts_df = list_of_lists_to_df_first_row_as_columsource_namens(fcst_ts)
                 fcst_ts_df['longitude'] = longitude
                 fcst_ts_df['latitude'] = latitude
                 fcst_ts_df.set_index(['time', 'longitude', 'latitude'], inplace=True)
@@ -192,6 +193,20 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                 else:
                     df = pd.merge(df, fcst_ts_df, how="outer", on=['time', 'longitude', 'latitude'])
                 print(df)
+
+        obs_start = df['time'].min()
+
+        obs_ts = extract_obs_rain_15_min_ts(connection=curw_obs_pool.connection(), id=hash_id, start_time=obs_start)
+        obs_ts.insert(0, ['time', 'obs'])
+
+        obs_ts_df = list_of_lists_to_df_first_row_as_columns(obs_ts)
+        obs_ts_df['longitude'] = longitude
+        obs_ts_df['latitude'] = latitude
+        obs_ts_df.set_index(['time', 'longitude', 'latitude'], inplace=True)
+
+        df = pd.merge(df, obs_ts_df, how="outer", on=['time', 'longitude', 'latitude'])
+
+        print(df)
 
         break
 
@@ -381,6 +396,7 @@ if __name__ == "__main__":
         makedir_if_not_exist(bucket_rfield_home)
 
         prepare_active_obs_stations_based_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
+                                                 curw_obs_pool=curw_obs_pool,
                                                  tms_meta=tms_meta, config_data=config_data,
                                                  active_obs_stations=active_obs_stations)
 
