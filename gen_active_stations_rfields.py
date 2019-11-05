@@ -146,7 +146,8 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         if len(grid_id_parts) == 4:
             obs_to_d03_dict[grid_id_parts[1]] = obs_to_d03_grid_mapping.get(key)[0]
 
-    dataframe = None
+    dataframe = pd.DataFrame()
+    outer_df_initialized = False
 
     for obs_id in obs_to_d03_dict.keys():
         print('obs id, ', obs_id)
@@ -188,7 +189,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                     df_initialized = True
                 else:
                     df = pd.merge(df, fcst_ts_df, how="outer", on='time')
-                print(df)
 
         obs_start = (df['time'].min() - timedelta(minutes=10)).strftime(COMMON_DATE_TIME_FORMAT)
 
@@ -204,7 +204,11 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
 
         print(df)
 
-        break
+        if not outer_df_initialized:
+            dataframe = df
+        else:
+            dataframe.append(df)
+            break
 
 
 if __name__ == "__main__":
