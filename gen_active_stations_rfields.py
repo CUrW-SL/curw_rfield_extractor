@@ -122,10 +122,9 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
             results = cursor1.fetchall()
 
             for result in results:
-                obs_stations[result.get('station_id')] = [result.get('hash_id'), result.get('station_name'),
+                obs_stations[str(result.get('station_id'))] = [result.get('hash_id'), result.get('station_name'),
                                      result.get('latitude'), result.get('longitude')]
 
-        print("inside obs station extraion func", obs_stations)
         return obs_stations
 
     except Exception as ex:
@@ -150,6 +149,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
     dataframe = None
 
     for obs_id in obs_to_d03_dict.keys():
+        print('obs id, ', obs_id)
 
         d03_station_id = obs_to_d03_dict.get(obs_id)
         latitude = active_obs_stations.get(obs_id)[2]
@@ -362,7 +362,6 @@ if __name__ == "__main__":
         }
 
         active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool)
-        print('active obs stations:', active_obs_stations)
 
         local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
                                          config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
