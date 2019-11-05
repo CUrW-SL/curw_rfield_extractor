@@ -206,6 +206,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
 
         if not outer_df_initialized:
             dataframe = df
+            outer_df_initialized = True
         else:
             dataframe.append(df)
             print(dataframe)
