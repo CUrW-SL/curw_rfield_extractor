@@ -201,7 +201,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         df['longitude'] = longitude
         df['latitude'] = latitude
         df.set_index(['time', 'longitude', 'latitude'], inplace=True)
-        df.dropna()
+        df = df.dropna()
 
         if not outer_df_initialized:
             dataframe = df
