@@ -190,7 +190,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                     df = fcst_ts_df
                     df_initialized = True
                 else:
-                    df.join(fcst_ts_df, how="outer")
+                    df.merge(fcst_ts_df, how="outer", on=['time', 'longitude', 'latitude'])
                 print(df)
 
         break
