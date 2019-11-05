@@ -160,7 +160,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
 
         for wrf_system in config_data['wrf_system_list']:
             source_name = "{}_{}".format(config_data['model'], wrf_system)
-            print(source_name)
 
             source_id = None
 
@@ -181,7 +180,6 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                                                    source_id=source_id, variable_id=tms_meta['variable_id'],
                                                    unit_id=tms_meta['unit_id'])
                 fcst_ts.insert(0, ['time', source_name])
-                print(source_name)
 
                 fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
                 fcst_ts_df['longitude'] = longitude
@@ -192,7 +190,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                     df = fcst_ts_df
                     df_initialized = True
                 else:
-                    df.merge(fcst_ts_df, how="outer", on=['time', 'longitude', 'latitude'])
+                    df = pd.merge(df, fcst_ts_df, how="outer", on=['time', 'longitude', 'latitude'])
                 print(df)
 
         break
