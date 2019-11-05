@@ -75,18 +75,14 @@ def read_attribute_from_config_file(attribute, config):
         sys.exit(1)
 
 
-def list_of_lists_to_df_first_row_as_columns_first_column_as_index(data):
+def list_of_lists_to_df_first_row_as_columns(data):
     """
 
     :param data: data in list of lists format
     :return: equivalent pandas dataframe
     """
-    original_data = np.array(data)
-    columns = original_data[0, 1:]
-    index = original_data[1:, 0]
-    data = original_data[1:, 1:]
 
-    return pd.DataFrame.from_records(data=data, columns=columns, index=index)
+    return pd.DataFrame.from_records(data[1:], columns=data[0])
 
 
 def write_to_file(file_name, data):
@@ -155,6 +151,8 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
     for obs_id in obs_to_d03_dict.keys():
 
         d03_station_id = obs_to_d03_dict.get(obs_id)
+        latitude = active_obs_stations.get(obs_id)[2]
+        longitude = active_obs_stations.get(obs_id)[3]
 
         df = pd.DataFrame()
 
@@ -181,9 +179,15 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, tms_
                                                    unit_id=tms_meta['unit_id'])
                 fcst_ts.insert(0, ['time', source_name])
 
-                fcst_ts_df = list_of_lists_to_df_first_row_as_columns_first_column_as_index(fcst_ts)
+                fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
+                fcst_ts_df['longitude'] = longitude
+                fcst_ts_df['latitude'] = latitude
+                fcst_ts_df.set_index(['time', 'longitude', 'latitude'], inplace=True)
+                print(fcst_ts_df)
 
-            df.merge(fcst_ts, how="outer")
+        break
+
+            # df.merge(fcst_ts, how="outer")
 
 
 if __name__ == "__main__":
