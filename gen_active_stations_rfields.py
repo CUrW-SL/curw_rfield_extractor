@@ -12,10 +12,10 @@ import pandas as pd
 
 from db_adapter.base import get_Pool, destroy_Pool
 
-from db_adapter.curw_fcst.source import get_source_id, add_source
-from db_adapter.curw_fcst.variable import get_variable_id, add_variable
-from db_adapter.curw_fcst.unit import get_unit_id, add_unit, UnitType
-from db_adapter.curw_fcst.station import StationEnum, get_station_id, add_station, get_wrf_stations
+from db_adapter.curw_fcst.source import get_source_id
+from db_adapter.curw_fcst.variable import get_variable_id
+from db_adapter.curw_fcst.unit import get_unit_id, UnitType
+from db_adapter.curw_fcst.station import get_wrf_stations
 from db_adapter.curw_fcst.timeseries import Timeseries as FCST_Timeseries
 from db_adapter.curw_sim.grids import get_obs_to_d03_grid_mappings_for_rainfall, GridInterpolationEnum
 from db_adapter.curw_sim.common import extract_obs_rain_15_min_ts
@@ -33,13 +33,8 @@ KELANI_BASIN_EXTENT = [79.6, 6.6, 81.0, 7.4]
 email_content = {}
 
 local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
-d03_kelani_basin_rfield_home = ''
-d03_rfield_home = ''
-d01_rfield_home = ''
-
-d03_kelani_basin_bucket_rfield_home = ''
-d03_bucket_rfield_home = ''
-d01_bucket_rfield_home = ''
+local_rfield_home = ''
+bucket_rfield_home = ''
 
 
 def usage():
@@ -200,7 +195,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
 
         df['longitude'] = longitude
         df['latitude'] = latitude
-        df.set_index(['time', 'longitude', 'latitude'], inplace=True)
+        df.set_index(['longitude', 'latitude', 'time'], inplace=True)
         df = df.dropna()
 
         if not outer_df_initialized:
@@ -210,6 +205,13 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
             dataframe = dataframe.append(df)
             print(dataframe)
             break
+
+    dataframe.sort_index(inplace=True)
+
+    dataframe.to_csv(os.path.join(local_rfield_home,
+                                  '{}_{}_{}_hybrid_rfield.csv'.
+                                  format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'])),
+                     header=False, index=True)
 
 
 if __name__ == "__main__":
