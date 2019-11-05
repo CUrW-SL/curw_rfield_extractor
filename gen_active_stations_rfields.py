@@ -208,6 +208,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
             dataframe = df
         else:
             dataframe.append(df)
+            print(dataframe)
             break
 
 
