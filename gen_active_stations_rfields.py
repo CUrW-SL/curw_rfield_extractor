@@ -1,4 +1,4 @@
-#!/home/uwcc-admin/curw_rfield_extractor/venv/bin/python3
+#!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
 import traceback
 import numpy as np
 import os
@@ -65,7 +65,7 @@ def read_attribute_from_config_file(attribute, config):
         msg = "{} not specified in config file.".format(attribute)
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-        sys.exit(1)
+        exit(1)
 
 
 def list_of_lists_to_df_first_row_as_columns(data):
@@ -117,6 +117,7 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
         msg = "Exception occurred while retrieving active observational stations."
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        exit(1)
     finally:
         connection.close()
 
@@ -132,6 +133,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         msg = "Exception occurred while loading rainfall obs station to d03 station grid maps."
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        exit(1)
 
     obs_to_d03_dict = {}
 
@@ -172,6 +174,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
                             wrf_system)
                         logger.error(msg)
                         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                        exit(1)
 
                 if source_id is not None:
                     FCST_TS = FCST_Timeseries(curw_fcst_pool)
@@ -210,6 +213,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         msg = "Exception occurred while processing hybrid rfield."
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        exit(1)
 
     dataframe.sort_index(inplace=True)
 
@@ -229,6 +233,7 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         msg = "Exception occurred while saving rfields to file."
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        exit(1)
 
 
 if __name__ == "__main__":
@@ -302,7 +307,7 @@ if __name__ == "__main__":
             msg = "Config file name is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
 
         config = json.loads(open(config_path).read())
 
@@ -311,22 +316,22 @@ if __name__ == "__main__":
             msg = "WRF root directory is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
         if gfs_run is None:
             msg = "GFS run is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
         if gfs_data_hour is None:
             msg = "GFS data hour is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
         if wrf_systems is None:
             msg = "WRF systems are not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
         model = read_attribute_from_config_file('model', config)
         version = read_attribute_from_config_file('version', config)
         wrf_type = read_attribute_from_config_file('wrf_type', config)
@@ -349,7 +354,7 @@ if __name__ == "__main__":
             msg = "Run date is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
 
         curw_fcst_pool = get_Pool(host=CURW_FCST_HOST, user=CURW_FCST_USERNAME, password=CURW_FCST_PASSWORD,
                                   port=CURW_FCST_PORT, db=CURW_FCST_DATABASE)
@@ -367,13 +372,13 @@ if __name__ == "__main__":
             msg = "Exception occurred while loading common metadata from database."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
 
         if date is None:
             msg = "Run date is not specified."
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            sys.exit(1)
+            exit(1)
 
         tms_meta = {
             'sim_tag': sim_tag,
