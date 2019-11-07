@@ -9,7 +9,6 @@ import sys
 import getopt
 import pandas as pd
 
-
 from db_adapter.base import get_Pool, destroy_Pool
 
 from db_adapter.curw_fcst.source import get_source_id
@@ -19,7 +18,7 @@ from db_adapter.curw_fcst.station import get_wrf_stations
 from db_adapter.curw_fcst.timeseries import Timeseries as FCST_Timeseries
 from db_adapter.curw_sim.grids import get_obs_to_d03_grid_mappings_for_rainfall, GridInterpolationEnum
 from db_adapter.curw_sim.common import extract_obs_rain_15_min_ts
-from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT,\
+from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT, \
     CURW_FCST_HOST
 from db_adapter.constants import CURW_OBS_USERNAME, CURW_OBS_DATABASE, CURW_OBS_HOST, CURW_OBS_PASSWORD, CURW_OBS_PORT
 from db_adapter.constants import CURW_SIM_DATABASE, CURW_SIM_PASSWORD, CURW_SIM_USERNAME, CURW_SIM_PORT, CURW_SIM_HOST
@@ -28,7 +27,6 @@ from db_adapter.logger import logger
 
 SRI_LANKA_EXTENT = [79.5213, 5.91948, 81.879, 9.83506]
 KELANI_BASIN_EXTENT = [79.6, 6.6, 81.0, 7.4]
-
 
 email_content = {}
 
@@ -111,7 +109,7 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
 
             for result in results:
                 obs_stations[str(result.get('station_id'))] = [result.get('hash_id'), result.get('station_name'),
-                                     result.get('latitude'), result.get('longitude')]
+                                                               result.get('latitude'), result.get('longitude')]
 
         return obs_stations
 
@@ -123,13 +121,13 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
         connection.close()
 
 
-def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data, active_obs_stations):
-
+def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data,
+                                             active_obs_stations):
     try:
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
         obs_to_d03_grid_mapping = get_obs_to_d03_grid_mappings_for_rainfall(pool=curw_sim_pool,
-                                                                        grid_interpolation=grid_interpolation)
+                                                                            grid_interpolation=grid_interpolation)
     except Exception:
         msg = "Exception occurred while loading rainfall obs station to d03 station grid maps."
         logger.error(msg)
@@ -145,72 +143,81 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
     dataframe = pd.DataFrame()
     outer_df_initialized = False
 
-    for obs_id in obs_to_d03_dict.keys():
-        print('obs id, ', obs_id)
+    try:
 
-        d03_station_id = obs_to_d03_dict.get(obs_id)
-        latitude = active_obs_stations.get(obs_id)[2]
-        longitude = active_obs_stations.get(obs_id)[3]
-        hash_id = active_obs_stations.get(obs_id)[0]
+        for obs_id in active_obs_stations.keys():
+            print('obs id, ', obs_id)
 
-        df = pd.DataFrame()
-        df_initialized = False
+            d03_station_id = obs_to_d03_dict.get(obs_id)
+            latitude = active_obs_stations.get(obs_id)[2]
+            longitude = active_obs_stations.get(obs_id)[3]
+            hash_id = active_obs_stations.get(obs_id)[0]
 
-        for wrf_system in config_data['wrf_system_list']:
-            source_name = "{}_{}".format(config_data['model'], wrf_system)
+            df = pd.DataFrame()
+            df_initialized = False
 
-            source_id = None
+            for wrf_system in config_data['wrf_system_list']:
+                source_name = "{}_{}".format(config_data['model'], wrf_system)
 
-            try:
-                source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
-            except Exception:
+                source_id = None
+
                 try:
-                    time.sleep(3)
                     source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
                 except Exception:
-                    msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(wrf_system)
-                    logger.error(msg)
-                    email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+                    try:
+                        time.sleep(3)
+                        source_id = get_source_id(pool=curw_fcst_pool, model=source_name, version=tms_meta['version'])
+                    except Exception:
+                        msg = "Exception occurred while loading source meta data for WRF_{} from database.".format(
+                            wrf_system)
+                        logger.error(msg)
+                        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
-            if source_id is not None:
-                FCST_TS = FCST_Timeseries(curw_fcst_pool)
-                fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
-                                                   source_id=source_id, variable_id=tms_meta['variable_id'],
-                                                   unit_id=tms_meta['unit_id'])
-                fcst_ts.insert(0, ['time', source_name])
-                fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
+                if source_id is not None:
+                    FCST_TS = FCST_Timeseries(curw_fcst_pool)
+                    fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
+                                                            source_id=source_id, variable_id=tms_meta['variable_id'],
+                                                            unit_id=tms_meta['unit_id'])
+                    fcst_ts.insert(0, ['time', source_name])
+                    fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
 
-                if not df_initialized:
-                    df = fcst_ts_df
-                    df_initialized = True
-                else:
-                    df = pd.merge(df, fcst_ts_df, how="outer", on='time')
+                    if not df_initialized:
+                        df = fcst_ts_df
+                        df_initialized = True
+                    else:
+                        df = pd.merge(df, fcst_ts_df, how="outer", on='time')
 
-        obs_start = (df['time'].min() - timedelta(minutes=10)).strftime(COMMON_DATE_TIME_FORMAT)
+            obs_start = (df['time'].min() - timedelta(minutes=10)).strftime(COMMON_DATE_TIME_FORMAT)
 
-        obs_ts = extract_obs_rain_15_min_ts(connection=curw_obs_pool.connection(), id=hash_id, start_time=obs_start)
-        obs_ts.insert(0, ['time', 'obs'])
-        obs_ts_df = list_of_lists_to_df_first_row_as_columns(obs_ts)
+            obs_ts = extract_obs_rain_15_min_ts(connection=curw_obs_pool.connection(), id=hash_id, start_time=obs_start)
+            obs_ts.insert(0, ['time', 'obs'])
+            obs_ts_df = list_of_lists_to_df_first_row_as_columns(obs_ts)
 
-        df = pd.merge(df, obs_ts_df, how="left", on='time')
+            df = pd.merge(df, obs_ts_df, how="left", on='time')
 
-        df['longitude'] = longitude
-        df['latitude'] = latitude
-        df.set_index(['time', 'longitude', 'latitude'], inplace=True)
-        df = df.dropna()
+            df['longitude'] = longitude
+            df['latitude'] = latitude
+            df.set_index(['time', 'longitude', 'latitude'], inplace=True)
+            df = df.dropna()
 
-        if not outer_df_initialized:
-            dataframe = df
-            outer_df_initialized = True
-        else:
-            dataframe = dataframe.append(df)
+            if not outer_df_initialized:
+                dataframe = df
+                outer_df_initialized = True
+            else:
+                dataframe = dataframe.append(df)
+
+    except Exception:
+        msg = "Exception occurred while processing hybrid rfield."
+        logger.error(msg)
+        email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
 
     dataframe.sort_index(inplace=True)
 
     try:
         dataframe.to_csv(os.path.join(local_rfield_home,
                                       '{}_{}_{}_15min_hybrid_rfield.csv'.
-                                      format(config_data['wrf_type'], config_data['gfs_run'], config_data['gfs_data_hour'])),
+                                      format(config_data['wrf_type'], config_data['gfs_run'],
+                                             config_data['gfs_data_hour'])),
                          header=False, index=True)
 
         dataframe.to_csv(os.path.join(bucket_rfield_home,
@@ -231,12 +238,12 @@ if __name__ == "__main__":
     {
       "version": "4.0",
       "wrf_type": "dwrf",
-    
+
       "model": "WRF",
-    
+
       "unit": "mm",
       "unit_type": "Accumulative",
-    
+
       "variable": "Precipitation"
     }
 
@@ -394,7 +401,8 @@ if __name__ == "__main__":
                                          config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
 
         bucket_rfield_home = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                  config_data['gfs_data_hour'], config_data['date'], 'rfields', config_data['wrf_type'])
+                                          config_data['gfs_data_hour'], config_data['date'], 'rfields',
+                                          config_data['wrf_type'])
 
         # make rfield directories
         makedir_if_not_exist(local_rfield_home)
@@ -418,5 +426,5 @@ if __name__ == "__main__":
         if curw_sim_pool is not None:
             destroy_Pool(curw_sim_pool)
         print("{} ::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {}"
-                    .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
+              .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
 
