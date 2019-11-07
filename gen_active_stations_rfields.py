@@ -1,4 +1,4 @@
-#!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
+#!/home/uwcc-admin/curw_rfield_extractor/venv/bin/python3
 import traceback
 import numpy as np
 import os
