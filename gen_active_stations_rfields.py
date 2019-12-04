@@ -213,22 +213,25 @@ def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw
         msg = "Exception occurred while processing hybrid rfield."
         logger.error(msg)
         email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
+        traceback.print_exc()
         exit(1)
 
     dataframe.sort_index(inplace=True)
 
     try:
         dataframe.to_csv(os.path.join(local_rfield_home,
-                                      '{}_{}_{}_15min_hybrid_rfield.csv'.
+                                      '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
                                       format(config_data['wrf_type'], config_data['gfs_run'],
-                                             config_data['gfs_data_hour'])),
-                         header=False, index=True)
+                                             config_data['gfs_data_hour'],
+                                             '_'.join(config_data['wrf_system_list']))),
+                         header=True, index=True)
 
         dataframe.to_csv(os.path.join(bucket_rfield_home,
-                                      '{}_{}_{}_15min_hybrid_rfield.csv'.
+                                      '{}_{}_{}_{}_15min_hybrid_rfield.csv'.
                                       format(config_data['wrf_type'], config_data['gfs_run'],
-                                             config_data['gfs_data_hour'])),
-                         header=False, index=True)
+                                             config_data['gfs_data_hour'],
+                                             '_'.join(config_data['wrf_system_list']))),
+                         header=True, index=True)
     except Exception:
         msg = "Exception occurred while saving rfields to file."
         logger.error(msg)
@@ -432,4 +435,3 @@ if __name__ == "__main__":
             destroy_Pool(curw_sim_pool)
         print("{} ::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {}"
               .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
-
