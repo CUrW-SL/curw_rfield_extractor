@@ -1,0 +1,6 @@
+###############
+# WRF RFIELDS #
+###############
+
+# generate hybrid rfields hourly
+30 * * * * /home/uwcc-admin/gen_active_stations_rfields_hourly.sh >> /home/uwcc-admin/hourly_hybrid_rfields.log
