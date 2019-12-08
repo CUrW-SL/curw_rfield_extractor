@@ -3,4 +3,4 @@
 ###############
 
 # generate hybrid rfields hourly
-30 * * * * /home/uwcc-admin/gen_active_stations_rfields_hourly.sh >> /home/uwcc-admin/hourly_hybrid_rfields.log
+30 * * * * /home/uwcc-admin/curw_rfield_extractor/gen_active_stations_rfields_hourly.sh >> /home/uwcc-admin/curw_rfield_extractor/hourly_hybrid_rfields.log
