@@ -51,6 +51,7 @@ wrf_systems='A,C,E,SE'
 gfs_run_d0='d0'
 
 gfs_data_hour_18='18'
+gfs_data_hour_00='00'
 
 ## Push WRFv4 data into the database
 echo "Running scripts to generate rfields based on active observational stations. Logs Available in active_stations_rfields.log file."
@@ -58,7 +59,13 @@ echo "Running scripts to generate rfields based on active observational stations
 # d0 18 hrs wrf run
 echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run_d0,
 gfs_data_hour=$gfs_data_hour_18, wrf_system=$wrf_systems, date=$date"
-./gen_active_stations_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run_d0 -H $gfs_data_hour_18 -s $wrf_systems -D $date >> active_stations_rfields.log 2>&1
+./gen_active_stations_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run_d0 -H $gfs_data_hour_18 -s $wrf_systems -D $date >> hourly_hybrid_rfields.log 2>&1
+
+# d0 00 hrs wrf run
+echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run_d0,
+gfs_data_hour=$gfs_data_hour_00, wrf_system=$wrf_systems, date=$date"
+./gen_active_stations_rfields.py -c $config_file_path -d $wrf_root_directory -r $gfs_run_d0 -H $gfs_data_hour_00 -s $wrf_systems -D $date >> hourly_hybrid_rfields.log 2>&1
+
 
 # Deactivating virtual environment
 echo "Deactivating virtual environment"
