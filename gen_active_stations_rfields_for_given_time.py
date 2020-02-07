@@ -289,6 +289,7 @@ if __name__ == "__main__":
                     }
     """
     config_data = {}
+    tms_meta = {}
     curw_fcst_pool = None
     curw_obs_pool = None
     curw_sim_pool = None
@@ -467,6 +468,6 @@ if __name__ == "__main__":
             destroy_Pool(curw_obs_pool)
         if curw_sim_pool is not None:
             destroy_Pool(curw_sim_pool)
-        print("{} ::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {}"
-                    .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
+        print("{} \n::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {} \n::: Tms Meta {}"
+                    .format(datetime.now(), json.dumps(email_content), json.dumps(config_data), json.dumps(tms_meta)))
 
