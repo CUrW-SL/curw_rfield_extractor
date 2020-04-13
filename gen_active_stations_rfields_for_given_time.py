@@ -104,7 +104,7 @@ def select_rectagular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=
     return selected_grids
 
 
-def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
+def extract_active_curw_obs_rainfall_stations(curw_obs_pool, start_time, end_time):
     """
         Extract currently active (active within last week) rainfall obs stations
         :return:
@@ -117,12 +117,12 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
     try:
 
         with connection.cursor() as cursor1:
-            cursor1.callproc(procname='getActiveRainfallObsStations')
+            cursor1.callproc('getActiveRfStationsAtGivenTime', (start_time, end_time))
             results = cursor1.fetchall()
 
             for result in results:
                 obs_stations[str(result.get('station_id'))] = [result.get('hash_id'), result.get('station_name'),
-                                     result.get('latitude'), result.get('longitude')]
+                                                               result.get('latitude'), result.get('longitude')]
 
         return obs_stations
 
@@ -135,7 +135,12 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
         connection.close()
 
 
-def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data, active_obs_stations):
+def prepare_active_obs_stations_based_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data):
+
+    start_time = datetime.strptime(tms_meta['fgt'], COMMON_DATE_TIME_FORMAT) - timedelta(days=2)
+    end_time = datetime.strptime(tms_meta['fgt'], COMMON_DATE_TIME_FORMAT) + timedelta(days=2)
+    active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool=curw_obs_pool, start_time=start_time,
+                                                                    end_time=end_time)
 
     try:
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
@@ -433,7 +438,6 @@ if __name__ == "__main__":
             'wrf_type': wrf_type
         }
 
-        active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool)
 
         # local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
         #                                  config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
@@ -453,8 +457,7 @@ if __name__ == "__main__":
 
         prepare_active_obs_stations_based_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
                                                  curw_obs_pool=curw_obs_pool,
-                                                 tms_meta=tms_meta, config_data=config_data,
-                                                 active_obs_stations=active_obs_stations)
+                                                 tms_meta=tms_meta, config_data=config_data)
 
     except Exception as e:
         msg = 'Config data loading error.'
