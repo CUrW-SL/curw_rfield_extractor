@@ -15,8 +15,8 @@ from db_adapter.curw_fcst.source import get_source_id
 from db_adapter.curw_fcst.variable import get_variable_id
 from db_adapter.curw_fcst.unit import get_unit_id, UnitType
 from db_adapter.curw_fcst.station import get_wrf_stations
-from db_adapter.curw_fcst.timeseries import Timeseries as FCST_Timeseries
 from db_adapter.curw_sim.grids import get_obs_to_d03_grid_mappings_for_rainfall, GridInterpolationEnum
+from db_adapter.curw_fcst.timeseries import Timeseries as FCST_Timeseries
 from db_adapter.constants import CURW_OBS_USERNAME, CURW_OBS_DATABASE, CURW_OBS_HOST, CURW_OBS_PASSWORD, CURW_OBS_PORT
 from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT, \
     CURW_FCST_HOST
@@ -92,7 +92,7 @@ def makedir_if_not_exist(dir_path):
         pass
 
 
-def select_rectagular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=6.6, lat_max=7.4):
+def select_rectangular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=6.6, lat_max=7.4):
     # default is kelani basin
     # selected_grids = all_grids[(all_grids.longitude >= lon_min) & (all_grids.longitude <= lon_max) &
     #                                (all_grids.latitude >= lat_min) & (all_grids.latitude <= lat_max)]
@@ -103,7 +103,7 @@ def select_rectagular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=
     return selected_grids
 
 
-def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
+def extract_active_curw_obs_rainfall_stations(curw_obs_pool, start_time, end_time):
     """
         Extract currently active (active within last week) rainfall obs stations
         :return:
@@ -116,7 +116,7 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
     try:
 
         with connection.cursor() as cursor1:
-            cursor1.callproc(procname='getActiveRainfallObsStations')
+            cursor1.callproc('getActiveRfStationsAtGivenTime', (start_time, end_time))
             results = cursor1.fetchall()
 
             for result in results:
@@ -134,8 +134,13 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
         connection.close()
 
 
-def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool, tms_meta, config_data,
-                                             active_obs_stations):
+def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data):
+
+    start_time = datetime.strptime(tms_meta['fgt'], COMMON_DATE_TIME_FORMAT) - timedelta(days=2)
+    end_time = datetime.strptime(tms_meta['fgt'], COMMON_DATE_TIME_FORMAT) + timedelta(days=2)
+    active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool=curw_obs_pool, start_time=start_time,
+                                                                    end_time=end_time)
+
     try:
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
@@ -221,7 +226,7 @@ def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool,
 
     dataframe.sort_index(inplace=True)
 
-    kelani_basin_df = select_rectagular_sub_region(all_grids=dataframe)
+    kelani_basin_df = select_rectangular_sub_region(all_grids=dataframe)
 
     try:
         # dataframe.to_csv(os.path.join(local_rfield_home,
@@ -258,18 +263,12 @@ if __name__ == "__main__":
     {
       "version": "4.0",
       "wrf_type": "dwrf",
-
       "model": "WRF",
-
       "unit": "mm",
       "unit_type": "Accumulative",
-
       "variable": "Precipitation"
     }
-
-
     /wrf_nfs/wrf/4.0/d0/18/A/2019-07-30/d03_RAINNC.nc
-
     tms_meta = {
                     'sim_tag'       : sim_tag,
                     'latitude'      : latitude,
@@ -426,8 +425,6 @@ if __name__ == "__main__":
             'wrf_type': wrf_type
         }
 
-        active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool)
-
         # local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
         #                                  config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
 
@@ -445,8 +442,8 @@ if __name__ == "__main__":
         makedir_if_not_exist(bucket_rfield_home_d03_kelani_basin)
 
         prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
-                                                 tms_meta=tms_meta, config_data=config_data,
-                                                 active_obs_stations=active_obs_stations)
+                                                      curw_obs_pool=curw_obs_pool, tms_meta=tms_meta,
+                                                      config_data=config_data)
 
     except Exception as e:
         msg = 'Config data loading error.'
@@ -462,4 +459,3 @@ if __name__ == "__main__":
             destroy_Pool(curw_sim_pool)
         print("{} \n::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {} \n::: Tms Meta {}"
               .format(datetime.now(), json.dumps(email_content), json.dumps(config_data), json.dumps(tms_meta)))
-
