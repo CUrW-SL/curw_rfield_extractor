@@ -37,20 +37,20 @@ then
     pip install git+https://github.com/shadhini/curw_db_adapter.git
 fi
 
-config_file_path='config/wrf_config_old.json'
+config_file_path='config/mwrf_config.json'
 wrf_root_directory='/mnt/disks/wrf_nfs/wrf'
 gfs_run=d0
 gfs_data_hour=18
-wrf_systems='A,C,E,SE'
+wrf_systems='T5'
 #sim_tag="evening_18hrs" #optional
 #date=$6
 
 #for date in "2019-12-31" "2019-12-30" "2019-12-29" "2019-12-28" "2019-12-27" "2019-12-26" "2019-12-25" "2019-12-24" "2019-12-23" "2019-12-22" "2019-12-21" "2019-12-20" "2019-12-19" "2019-12-18" "2019-12-17" "2019-12-16" "2019-12-15" "2019-12-14" "2019-12-13" "2019-12-12" "2019-12-11" "2019-12-10" "2019-12-09" "2019-12-08" "2019-12-07" "2019-12-06" "2019-12-05" "2019-12-04" "2019-12-03" "2019-12-02" "2019-12-01"
 #do
-date=2019-10-04
-while [ "$date" != 2019-11-09 ]; do
+date=2019-12-31
+while [ "$date" != 2020-02-08 ]; do
   echo $date
-	fgt="$date 00:00:00"
+	fgt="$date 02:00:00"
 	echo $fgt
 
   ## Push WRFv4 data into the database
