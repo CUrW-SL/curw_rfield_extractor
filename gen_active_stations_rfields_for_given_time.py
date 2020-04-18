@@ -41,7 +41,7 @@ bucket_rfield_home_d03_kelani_basin = ''
 def usage():
     usageText = """
     Usage: ./gen_active_stations_rfields_for_given_time.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
-    -s [wrf_system] -D [date] -f [expected_fgt]
+    -s [wrf_system] -D [date] -f [expected_fgt] -S [sim_tag]
 
     -h  --help          Show usage
     -c  --config        Config file name or path. e.g: "wrf_config.json"
@@ -51,6 +51,7 @@ def usage():
     -s  --wrf_systems   List of WRF Systems. e.g.: A,C,E,SE
     -D  --date          Run date. e.g.: 2019-10-07 (date of the directory containing the wrf output to be used)
     -f  --fgt           Expected fgt of the forecasts
+    -S  --sim_tag       Simulation Tag. Not necessary. Default is as per the convention.
 
     """
     print(usageText)
@@ -308,10 +309,12 @@ if __name__ == "__main__":
         wrf_systems = None
         date = None
         fgt = None
+        sim_tag = None
 
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h:c:d:r:H:s:D:f:",
-                                       ["help", "config=", "dir=", "run=", "hour=", "wrf_systems=", "date=", "fgt="])
+            opts, args = getopt.getopt(sys.argv[1:], "h:c:d:r:H:s:D:f:S:",
+                                       ["help", "config=", "dir=", "run=", "hour=", "wrf_systems=", "date=", "fgt=",
+                                        "sim_tag="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -333,6 +336,8 @@ if __name__ == "__main__":
                 date = arg.strip()
             elif opt in ("-f", "--fgt"):
                 fgt = arg.strip()
+            elif opt in ("-S", "--sim_tag"):
+                sim_tag = arg.strip()
 
         if config_path is None:
             msg = "Config file name is not specified."
@@ -375,10 +380,11 @@ if __name__ == "__main__":
         wrf_system_list = wrf_systems.split(',')
 
         # sim_tag
-        sim_tag_prefix = ''
-        if wrf_type != 'wrf':
-            sim_tag_prefix = wrf_type + "_"
-        sim_tag = sim_tag_prefix + 'gfs_{}_{}'.format(gfs_run, gfs_data_hour)
+        if sim_tag is None:
+            sim_tag_prefix = ''
+            if wrf_type != 'wrf':
+                sim_tag_prefix = wrf_type + "_"
+            sim_tag = sim_tag_prefix + 'gfs_{}_{}'.format(gfs_run, gfs_data_hour)
 
         # unit details
         unit = read_attribute_from_config_file('unit', config)
