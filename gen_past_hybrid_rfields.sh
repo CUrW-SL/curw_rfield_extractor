@@ -37,6 +37,34 @@ then
     pip install git+https://github.com/shadhini/curw_db_adapter.git
 fi
 
+config_file_path='config/wrf_config_old.json'
+wrf_root_directory='/mnt/disks/wrf_nfs/wrf'
+gfs_run=d0
+gfs_data_hour='00'
+wrf_systems='A,C,E,SE'
+#sim_tag="evening_18hrs" #optional
+#date=$6
+
+for date in "2019-10-17" "2019-10-18" "2019-10-19" "2019-10-20" "2019-10-21" "2019-10-28" "2019-10-29" "2019-10-30" "2019-10-31" "2019-11-01" "2019-11-02" "2019-11-03" "2019-11-04" "2019-11-05" "2019-11-06" "2019-11-07" "2019-11-07" "2019-11-08" "2019-11-12"
+do
+
+#date=2020-10-17
+#while [ "$date" != 2020-04-18 ]; do
+  echo $date
+	fgt="$date 10:00:00"
+	echo $fgt
+
+  echo "Running scripts to generate rfields based on active observational stations."
+  echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
+  gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_systems, date=$date, fgt=$fgt"
+  ./gen_active_stations_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" >> past_active_stations_rfields.log 2>&1
+  ./gen_fcst_only_hybrid_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" >> past_hybrid_wrf_rfields.log 2>&1
+  # with sim tag (optional set)
+#  ./gen_active_stations_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_active_stations_rfields.log 2>&1
+#  ./gen_fcst_only_hybrid_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_hybrid_wrf_rfields.log 2>&1
+  date=$(date -I -d "$date + 1 day")
+done
+
 config_file_path='config/dwrf_config.json'
 wrf_root_directory='/mnt/disks/wrf_nfs/wrf'
 gfs_run=d1
@@ -52,6 +80,52 @@ date=2020-01-17
 while [ "$date" != 2020-04-18 ]; do
   echo $date
 	fgt="$date 02:00:00"
+	echo $fgt
+
+  echo "Running scripts to generate rfields based on active observational stations."
+  echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
+  gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_systems, date=$date, fgt=$fgt"
+  ./gen_active_stations_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" >> past_active_stations_rfields.log 2>&1
+  ./gen_fcst_only_hybrid_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" >> past_hybrid_wrf_rfields.log 2>&1
+  # with sim tag (optional set)
+#  ./gen_active_stations_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_active_stations_rfields.log 2>&1
+#  ./gen_fcst_only_hybrid_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_hybrid_wrf_rfields.log 2>&1
+  date=$(date -I -d "$date + 1 day")
+done
+
+config_file_path='config/dwrf_config.json'
+wrf_root_directory='/mnt/disks/wrf_nfs/wrf'
+gfs_run=d1
+gfs_data_hour=18
+wrf_systems='A,C,E,SE'
+
+date=2020-01-17
+while [ "$date" != 2020-04-18 ]; do
+  echo $date
+	fgt="$date 09:00:00"
+	echo $fgt
+
+  echo "Running scripts to generate rfields based on active observational stations."
+  echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
+  gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_systems, date=$date, fgt=$fgt"
+  ./gen_active_stations_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" >> past_active_stations_rfields.log 2>&1
+  ./gen_fcst_only_hybrid_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" >> past_hybrid_wrf_rfields.log 2>&1
+  # with sim tag (optional set)
+#  ./gen_active_stations_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_active_stations_rfields.log 2>&1
+#  ./gen_fcst_only_hybrid_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_hybrid_wrf_rfields.log 2>&1
+  date=$(date -I -d "$date + 1 day")
+done
+
+config_file_path='config/dwrf_config.json'
+wrf_root_directory='/mnt/disks/wrf_nfs/wrf'
+gfs_run=d1
+gfs_data_hour='00'
+wrf_systems='A,C,E,SE'
+
+date=2020-01-16
+while [ "$date" != 2020-04-18 ]; do
+  echo $date
+	fgt="$date 17:00:00"
 	echo $fgt
 
   echo "Running scripts to generate rfields based on active observational stations."
