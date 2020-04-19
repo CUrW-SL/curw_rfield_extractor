@@ -37,20 +37,21 @@ then
     pip install git+https://github.com/shadhini/curw_db_adapter.git
 fi
 
-config_file_path='config/mwrf_config.json'
+config_file_path='config/dwrf_config.json'
 wrf_root_directory='/mnt/disks/wrf_nfs/wrf'
-gfs_run=d0
-gfs_data_hour=18
-wrf_systems='T5'
+gfs_run=d1
+gfs_data_hour='06'
+wrf_systems='A,C,E,SE'
 #sim_tag="evening_18hrs" #optional
 #date=$6
 
-for date in "2019-11-15" "2019-11-16" "2019-11-17" "2019-11-19"
-do
-#date=2019-07-30
-#while [ "$date" != 2019-10-03 ]; do
+#for date in "2019-11-15" "2019-11-16" "2019-11-17" "2019-11-19"
+#do
+
+date=2020-01-16
+while [ "$date" != 2020-04-18 ]; do
   echo $date
-	fgt="$date 20:00:00"
+	fgt="$date 22:00:00"
 	echo $fgt
 
   echo "Running scripts to generate rfields based on active observational stations."
@@ -61,7 +62,7 @@ do
   # with sim tag (optional set)
 #  ./gen_active_stations_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_active_stations_rfields.log 2>&1
 #  ./gen_fcst_only_hybrid_rfields_for_given_time.py -c $config_file_path -d $wrf_root_directory -r $gfs_run -H $gfs_data_hour -s $wrf_systems -D $date -f "$fgt" -S $sim_tag >> past_hybrid_wrf_rfields.log 2>&1
-#  date=$(date -I -d "$date + 1 day")
+  date=$(date -I -d "$date + 1 day")
 done
 
 # Deactivating virtual environment
