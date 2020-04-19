@@ -1,0 +1,11 @@
+{
+  "version": "v3",
+  "wrf_type": "wrf",
+
+  "model": "WRF",
+
+  "unit": "mm",
+  "unit_type": "Accumulative",
+
+  "variable": "Precipitation"
+}
