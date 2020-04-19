@@ -40,7 +40,7 @@ fi
 config_file_path='config/dwrf_config.json'
 wrf_root_directory='/mnt/disks/wrf_nfs/wrf'
 gfs_run=d1
-gfs_data_hour='06'
+gfs_data_hour=12
 wrf_systems='A,C,E,SE'
 #sim_tag="evening_18hrs" #optional
 #date=$6
@@ -48,10 +48,10 @@ wrf_systems='A,C,E,SE'
 #for date in "2019-11-15" "2019-11-16" "2019-11-17" "2019-11-19"
 #do
 
-date=2020-01-16
+date=2020-01-17
 while [ "$date" != 2020-04-18 ]; do
   echo $date
-	fgt="$date 22:00:00"
+	fgt="$date 02:00:00"
 	echo $fgt
 
   echo "Running scripts to generate rfields based on active observational stations."
