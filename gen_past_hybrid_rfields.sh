@@ -53,7 +53,6 @@ while [ "$date" != 2019-10-03 ]; do
 	fgt="$date 00:00:00"
 	echo $fgt
 
-  ## Push WRFv4 data into the database
   echo "Running scripts to generate rfields based on active observational stations."
   echo "Params passed:: config_file_path=$config_file_path, wrf_root_directory=$wrf_root_directory, gfs_run=$gfs_run,
   gfs_data_hour=$gfs_data_hour, wrf_system=$wrf_systems, date=$date, fgt=$fgt"
