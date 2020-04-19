@@ -4,3 +4,6 @@
 
 # generate hybrid rfields hourly
 30 * * * * /home/uwcc-admin/curw_rfield_extractor/gen_active_stations_rfields_hourly.sh >> /home/uwcc-admin/curw_rfield_extractor/hourly_hybrid_rfields.log
+
+# generate hybrid rfields for mwrf dwrf
+30 21 * * * /home/uwcc-admin/curw_rfield_extractor/gen_past_hybrid_rfields_for_dwrf_n_mwrf.sh >> /home/uwcc-admin/curw_rfield_extractor/mwrf_dwrf_hybrid_rfields.log
