@@ -37,7 +37,7 @@ bucket_rfield_home_d03_kelani_basin = ''
 
 def usage():
     usageText = """
-    Usage: ./gen_fcst_only_hybrid_rfields_for_given_time.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
+    Usage: ./gen_hybrid_wrf_rfields_for_given_time.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
     -s [wrf_system] -D [date] -f [expected_fgt] -S [sim_tag]
 
     -h  --help          Show usage
