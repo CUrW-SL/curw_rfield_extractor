@@ -1,4 +1,4 @@
-#!/home/uwcc-admin/curw_wrf_data_pusher/venv/bin/python3
+#!/home/uwcc-admin/curw_rfield_extractor/venv/bin/python3
 import traceback
 import numpy as np
 import os
@@ -15,8 +15,8 @@ from db_adapter.curw_fcst.source import get_source_id
 from db_adapter.curw_fcst.variable import get_variable_id
 from db_adapter.curw_fcst.unit import get_unit_id, UnitType
 from db_adapter.curw_fcst.station import get_wrf_stations
-from db_adapter.curw_sim.grids import get_obs_to_d03_grid_mappings_for_rainfall, GridInterpolationEnum
 from db_adapter.curw_fcst.timeseries import Timeseries as FCST_Timeseries
+from db_adapter.curw_sim.grids import get_obs_to_d03_grid_mappings_for_rainfall, GridInterpolationEnum
 from db_adapter.constants import CURW_OBS_USERNAME, CURW_OBS_DATABASE, CURW_OBS_HOST, CURW_OBS_PASSWORD, CURW_OBS_PORT
 from db_adapter.constants import CURW_FCST_DATABASE, CURW_FCST_PASSWORD, CURW_FCST_USERNAME, CURW_FCST_PORT, \
     CURW_FCST_HOST
@@ -29,16 +29,15 @@ KELANI_BASIN_EXTENT = [79.6, 6.6, 81.0, 7.4]
 
 email_content = {}
 
-# local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
-# local_rfield_home = ''
+local_output_root_dir = '/home/uwcc-admin/wrf_rfields'
+local_rfield_home = ''
 bucket_rfield_home_d03 = ''
 bucket_rfield_home_d03_kelani_basin = ''
 
-
 def usage():
     usageText = """
-    Usage: ./gen_fcst_only_hybrid_rfields_for_given_time.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
-    -s [wrf_system] -D [date] -f [expected_fgt] -S [sim_tag]
+    Usage: ./gen_fcst_only_hybrid_rfields.py -c [config_file_path] -d [wrf_root_directory] -r [gfs_run] -H [gfs_data_hour]
+    -s [wrf_system] -D [date] 
 
     -h  --help          Show usage
     -c  --config        Config file name or path. e.g: "wrf_config.json"
@@ -47,8 +46,6 @@ def usage():
     -H  --hour          GFS data hour. e.g: 00,06,12,18
     -s  --wrf_systems   List of WRF Systems. e.g.: A,C,E,SE
     -D  --date          Run date. e.g.: 2019-10-07 (date of the directory containing the wrf output to be used)
-    -f  --fgt           Expected fgt of the forecasts
-    -S  --sim_tag       Simulation Tag. Not necessary. Default is as per the convention.
 
     """
     print(usageText)
@@ -93,10 +90,8 @@ def makedir_if_not_exist(dir_path):
         pass
 
 
-def select_rectangular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=6.6, lat_max=7.4):
+def select_rectagular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min=6.6, lat_max=7.4):
     # default is kelani basin
-    # selected_grids = all_grids[(all_grids.longitude >= lon_min) & (all_grids.longitude <= lon_max) &
-    #                                (all_grids.latitude >= lat_min) & (all_grids.latitude <= lat_max)]
 
     selected_grids = all_grids.query('longitude >= {} & longitude <= {} & latitude >= {} & latitude <= {}'
                                      .format(lon_min, lon_max, lat_min, lat_max))
@@ -104,7 +99,7 @@ def select_rectangular_sub_region(all_grids, lon_min=79.6, lon_max=81.0, lat_min
     return selected_grids
 
 
-def extract_active_curw_obs_rainfall_stations(curw_obs_pool, start_time, end_time):
+def extract_active_curw_obs_rainfall_stations(curw_obs_pool):
     """
         Extract currently active (active within last week) rainfall obs stations
         :return:
@@ -117,7 +112,7 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool, start_time, end_tim
     try:
 
         with connection.cursor() as cursor1:
-            cursor1.callproc('getActiveRfStationsAtGivenTime', (start_time, end_time))
+            cursor1.callproc(procname='getActiveRainfallObsStations')
             results = cursor1.fetchall()
 
             for result in results:
@@ -135,13 +130,8 @@ def extract_active_curw_obs_rainfall_stations(curw_obs_pool, start_time, end_tim
         connection.close()
 
 
-def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool, curw_obs_pool, tms_meta, config_data):
-
-    start_time = datetime.strptime(tms_meta['fgt'], COMMON_DATE_TIME_FORMAT) - timedelta(days=2)
-    end_time = datetime.strptime(tms_meta['fgt'], COMMON_DATE_TIME_FORMAT) + timedelta(days=2)
-    active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool=curw_obs_pool, start_time=start_time,
-                                                                    end_time=end_time)
-
+def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool, tms_meta, config_data,
+                                             active_obs_stations):
     try:
         grid_interpolation = GridInterpolationEnum.getAbbreviation(GridInterpolationEnum.MDPA)
 
@@ -195,9 +185,9 @@ def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool,
 
                 if source_id is not None:
                     FCST_TS = FCST_Timeseries(curw_fcst_pool)
-                    fcst_ts = FCST_TS.get_nearest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
+                    fcst_ts = FCST_TS.get_latest_timeseries(sim_tag=tms_meta['sim_tag'], station_id=d03_station_id,
                                                             source_id=source_id, variable_id=tms_meta['variable_id'],
-                                                            unit_id=tms_meta['unit_id'], expected_fgt=tms_meta['fgt'])
+                                                            unit_id=tms_meta['unit_id'])
                     fcst_ts.insert(0, ['time', source_name])
                     fcst_ts_df = list_of_lists_to_df_first_row_as_columns(fcst_ts)
 
@@ -227,15 +217,15 @@ def prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool, curw_sim_pool,
 
     dataframe.sort_index(inplace=True)
 
-    kelani_basin_df = select_rectangular_sub_region(all_grids=dataframe)
+    kelani_basin_df = select_rectagular_sub_region(all_grids=dataframe)
 
     try:
-        # dataframe.to_csv(os.path.join(local_rfield_home,
-        #                               '{}_{}_{}_{}_15min_hybrid_fcst_rfield.csv'.
-        #                               format(config_data['wrf_type'], config_data['gfs_run'],
-        #                                      config_data['gfs_data_hour'],
-        #                                      '_'.join(config_data['wrf_system_list']))),
-        #                  header=True, index=True)
+        dataframe.to_csv(os.path.join(local_rfield_home,
+                                      '{}_{}_{}_{}_15min_hybrid_fcst_rfield.csv'.
+                                      format(config_data['wrf_type'], config_data['gfs_run'],
+                                             config_data['gfs_data_hour'],
+                                             '_'.join(config_data['wrf_system_list']))),
+                         header=True, index=True)
 
         dataframe.to_csv(os.path.join(bucket_rfield_home_d03,
                                       '{}_{}_{}_{}_15min_hybrid_fcst_rfield.csv'.
@@ -264,12 +254,18 @@ if __name__ == "__main__":
     {
       "version": "4.0",
       "wrf_type": "dwrf",
+
       "model": "WRF",
+
       "unit": "mm",
       "unit_type": "Accumulative",
+
       "variable": "Precipitation"
     }
+
+
     /wrf_nfs/wrf/4.0/d0/18/A/2019-07-30/d03_RAINNC.nc
+
     tms_meta = {
                     'sim_tag'       : sim_tag,
                     'latitude'      : latitude,
@@ -282,7 +278,6 @@ if __name__ == "__main__":
                     }
     """
     config_data = {}
-    tms_meta = {}
     curw_fcst_pool = None
     curw_obs_pool = None
     curw_sim_pool = None
@@ -295,13 +290,10 @@ if __name__ == "__main__":
         gfs_data_hour = None
         wrf_systems = None
         date = None
-        fgt = None
-        sim_tag = None
 
         try:
-            opts, args = getopt.getopt(sys.argv[1:], "h:c:d:r:H:s:D:f:S:",
-                                       ["help", "config=", "dir=", "run=", "hour=", "wrf_systems=", "date=", "fgt=",
-                                        "sim_tag="])
+            opts, args = getopt.getopt(sys.argv[1:], "h:c:d:r:H:s:D:",
+                                       ["help", "config=", "dir=", "run=", "hour=", "wrf_systems=", "date="])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -321,10 +313,6 @@ if __name__ == "__main__":
                 wrf_systems = arg.strip()
             elif opt in ("-D", "--date"):
                 date = arg.strip()
-            elif opt in ("-f", "--fgt"):
-                fgt = arg.strip()
-            elif opt in ("-S", "--sim_tag"):
-                sim_tag = arg.strip()
 
         if config_path is None:
             msg = "Config file name is not specified."
@@ -355,23 +343,16 @@ if __name__ == "__main__":
             logger.error(msg)
             email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
             exit(1)
-        if fgt is None:
-            msg = "Expected fgt is not specified."
-            logger.error(msg)
-            email_content[datetime.now().strftime(COMMON_DATE_TIME_FORMAT)] = msg
-            exit(1)
-
         model = read_attribute_from_config_file('model', config)
         version = read_attribute_from_config_file('version', config)
         wrf_type = read_attribute_from_config_file('wrf_type', config)
         wrf_system_list = wrf_systems.split(',')
 
         # sim_tag
-        if sim_tag is None:
-            sim_tag_prefix = ''
-            if wrf_type != 'wrf':
-                sim_tag_prefix = wrf_type + "_"
-            sim_tag = sim_tag_prefix + 'gfs_{}_{}'.format(gfs_run, gfs_data_hour)
+        sim_tag_prefix = ''
+        if wrf_type != 'wrf':
+            sim_tag_prefix = wrf_type + "_"
+        sim_tag = sim_tag_prefix + 'gfs_{}_{}'.format(gfs_run, gfs_data_hour)
 
         # unit details
         unit = read_attribute_from_config_file('unit', config)
@@ -417,8 +398,7 @@ if __name__ == "__main__":
             'unit': unit,
             'unit_type': unit_type.value,
             'variable_id': variable_id,
-            'unit_id': unit_id,
-            'fgt': fgt
+            'unit_id': unit_id
         }
         config_data = {
             'model': model,
@@ -431,25 +411,27 @@ if __name__ == "__main__":
             'wrf_type': wrf_type
         }
 
-        # local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
-        #                                  config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
+        active_obs_stations = extract_active_curw_obs_rainfall_stations(curw_obs_pool)
+
+        local_rfield_home = os.path.join(local_output_root_dir, config_data['version'], config_data['gfs_run'],
+                                         config_data['gfs_data_hour'], 'rfields', config_data['wrf_type'])
 
         bucket_rfield_home_d03 = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
                                           config_data['gfs_data_hour'], config_data['date'], 'rfields',
                                           config_data['wrf_type'], 'd03')
 
         bucket_rfield_home_d03_kelani_basin = os.path.join(config_data['wrf_dir'], config_data['version'], config_data['gfs_run'],
-                                              config_data['gfs_data_hour'], config_data['date'], 'rfields',
-                                              config_data['wrf_type'], 'd03_kelani_basin')
+                                          config_data['gfs_data_hour'], config_data['date'], 'rfields',
+                                          config_data['wrf_type'], 'd03_kelani_basin')
 
         # make rfield directories
-        # makedir_if_not_exist(local_rfield_home)
+        makedir_if_not_exist(local_rfield_home)
         makedir_if_not_exist(bucket_rfield_home_d03)
         makedir_if_not_exist(bucket_rfield_home_d03_kelani_basin)
 
         prepare_active_obs_stations_based_fcst_rfield(curw_fcst_pool=curw_fcst_pool, curw_sim_pool=curw_sim_pool,
-                                                      curw_obs_pool=curw_obs_pool, tms_meta=tms_meta,
-                                                      config_data=config_data)
+                                                 tms_meta=tms_meta, config_data=config_data,
+                                                 active_obs_stations=active_obs_stations)
 
     except Exception as e:
         msg = 'Config data loading error.'
@@ -463,5 +445,6 @@ if __name__ == "__main__":
             destroy_Pool(curw_obs_pool)
         if curw_sim_pool is not None:
             destroy_Pool(curw_sim_pool)
-        print("{} \n::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {} \n::: Tms Meta {}"
-              .format(datetime.now(), json.dumps(email_content), json.dumps(config_data), json.dumps(tms_meta)))
+        print("{} ::: Rfield Generation Process \n::: Email Content {} \n::: Config Data {}"
+              .format(datetime.now(), json.dumps(email_content), json.dumps(config_data)))
+
